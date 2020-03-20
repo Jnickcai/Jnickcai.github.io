@@ -47,10 +47,14 @@
 
     
     <div class="article-meta">
-      <a href="/2020/03/18/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/" class="article-date">
-  <time datetime="2020-03-18T13:48:28.761Z" itemprop="datePublished">2020-03-18</time>
+      <a href="/2020/03/20/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/" class="article-date">
+  <time datetime="2020-03-20T13:06:00.000Z" itemprop="datePublished">2020-03-20</time>
 </a>
       
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux%E9%A9%B1%E5%8A%A8%E5%AD%A6%E4%B9%A0/">Linux驱动学习</a>
+  </div>
+
       
       
 <div class="word_count">
@@ -58,7 +62,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">5字</span>
+            <span class="post-count">663字</span>
         </span>
     </span>
 
@@ -67,7 +71,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1分钟</span>
+            <span class="post-count">2分钟</span>
         </span>
     </span>
 </div>
@@ -78,6 +82,8 @@
 
     
     
+    <div class="tocbot"></div>
+
 
 
 
@@ -92,7 +98,24 @@
       
 
       
-      <p>linux驱动分析</p>
+      <p>[TOC]</p>
+<h1 id="一-IIC概述"><a href="#一-IIC概述" class="headerlink" title="一.     IIC概述"></a>一.     IIC概述</h1><p>1.IIC总线是PHLIPS公司推出的一种串行总线，是具备多主机系统所需的包括总线裁决和高低速器件同步功能的高性能串行总线。<br>2.IIC总线具有两根双向信号线，一根数据SDA，一根时钟线SCL。<br><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180514203538172.jpg" alt></p>
+<a id="more"></a>)
+
+<p>3.I2C总线通过上拉阻接正电源，上拉电阻一般在4.7k~10k之间。当总线空闲时，两根线均为高电平。连到总线上的任一器件输出的低电平，都将使总线的信号变低，即各器件的SDA及SCL都是线“与”关系。</p>
+<p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180515110246982-1584620951866.png" alt></p>
+<p>4.每个接到I2C总线上的器件都有唯一的地址（每个IIC设备都有一只设备ID，主机通过设备ID找到设备，然后开始通信）。主机与其它器件间的数据传输可以是由主机发送数据到其它器件，这时主机即为发送器，总线上收数据的器件则为接收器。</p>
+<h1 id="二-Linux-IIC-设备驱动框架分析"><a href="#二-Linux-IIC-设备驱动框架分析" class="headerlink" title="二.    Linux IIC 设备驱动框架分析"></a>二.    Linux IIC 设备驱动框架分析</h1><h2 id="1-Linux-驱动的分隔与分离"><a href="#1-Linux-驱动的分隔与分离" class="headerlink" title="1.Linux 驱动的分隔与分离"></a>1.Linux 驱动的分隔与分离</h2><p>对于Linux这样一个成熟、庞大、复杂的操作系统，代码的重用性非常重要，所以对于通用的串行总线，以及各种通用时序，虚拟出一个总线驱动(platform驱动模型)</p>
+<p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/1584624576258.png" alt></p>
+<h3 id="1-1-platform-总线"><a href="#1-1-platform-总线" class="headerlink" title="1.1    platform 总线"></a>1.1    platform 总线</h3><p>Linux系统内核采用bus_type结构体表示总线（include/linux/device.h)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> &#123;</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span>		*name;		<span class="comment">/* 总线名字 */</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span>		*dev_name;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">device</span>		*<span class="title">dev_root</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">device_attribute</span>	*<span class="title">dev_attrs</span>;</span>	<span class="comment">/* use dev_groups instead */</span></span><br><span class="line">	<span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">attribute_group</span> **<span class="title">bus_groups</span>;</span> <span class="comment">/* 总线属性 */</span></span><br><span class="line">	<span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">attribute_group</span> **<span class="title">dev_groups</span>;</span> <span class="comment">/* 设备属性 */</span></span><br><span class="line">	<span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">attribute_group</span> **<span class="title">drv_groups</span>;</span> <span class="comment">/* 驱动属性 */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> (*match)(struct device *dev, struct device_driver *drv); <span class="comment">/*完成设备和驱动之间匹配的 ,参数为设备，驱动*/</span></span><br><span class="line">	<span class="keyword">int</span> (*uevent)(struct device *dev, struct kobj_uevent_env *env);</span><br><span class="line">	<span class="keyword">int</span> (*probe)(struct device *dev);</span><br><span class="line">	<span class="keyword">int</span> (*<span class="built_in">remove</span>)(struct device *dev);</span><br><span class="line">	<span class="keyword">void</span> (*<span class="built_in">shutdown</span>)(struct device *dev);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> (*online)(struct device *dev);</span><br><span class="line">	<span class="keyword">int</span> (*offline)(struct device *dev);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> (*suspend)(struct device *dev, <span class="keyword">pm_message_t</span> state);</span><br><span class="line">	<span class="keyword">int</span> (*resume)(struct device *dev);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">dev_pm_ops</span> *<span class="title">pm</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">iommu_ops</span> *<span class="title">iommu_ops</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">subsys_private</span> *<span class="title">p</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> <span class="title">lock_key</span>;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>platform 总线是 bus_type 的一个具体实例，定义在文件 drivers/base/platform.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bus_type</span> <span class="title">platform_bus_type</span> = &#123;</span></span><br><span class="line">	.name		= <span class="string">"platform"</span>,</span><br><span class="line">	.dev_groups	= platform_dev_groups,</span><br><span class="line">	.match		= platform_match,</span><br><span class="line">	.uevent		= platform_uevent,</span><br><span class="line">	.pm		= &amp;platform_dev_pm_ops,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>platform_bus_type 就是 platform 平台总线，其中 platform_match 就是匹配函数。我们来看<br>一下驱动和设备是如何匹配</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">platform_match</span><span class="params">(struct device *dev, struct device_driver *drv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">platform_device</span> *<span class="title">pdev</span> = <span class="title">to_platform_device</span>(<span class="title">dev</span>);</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">platform_driver</span> *<span class="title">pdrv</span> = <span class="title">to_platform_driver</span>(<span class="title">drv</span>);</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* When driver_override is set, only bind to the matching driver */</span></span><br><span class="line">	<span class="keyword">if</span> (pdev-&gt;driver_override)</span><br><span class="line">		<span class="keyword">return</span> !<span class="built_in">strcmp</span>(pdev-&gt;driver_override, drv-&gt;name);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Attempt an OF style match first */</span></span><br><span class="line">	<span class="keyword">if</span> (of_driver_match_device(dev, drv))</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Then try ACPI style match */</span></span><br><span class="line">	<span class="keyword">if</span> (acpi_driver_match_device(dev, drv))</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Then try to match against the id table */</span></span><br><span class="line">	<span class="keyword">if</span> (pdrv-&gt;id_table)</span><br><span class="line">		<span class="keyword">return</span> platform_match_id(pdrv-&gt;id_table, pdev) != <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* fall-back to driver name match */</span></span><br><span class="line">	<span class="keyword">return</span> (<span class="built_in">strcmp</span>(pdev-&gt;name, drv-&gt;name) == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
       
       <!-- reward -->
@@ -162,13 +185,15 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/03/18/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/03/20/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0/" rel="tag">学习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%A9%B1%E5%8A%A8/" rel="tag">驱动</a></li></ul>
+
 
     </footer>
 
@@ -176,16 +201,6 @@
 
   
   
-  <nav class="article-nav">
-    
-    
-      <a href="/2019/12/01/about/" class="article-nav-link">
-        <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">About Me</div>
-      </a>
-    
-  </nav>
-
 
   
 
@@ -201,8 +216,8 @@
 <script>
     new Valine({
         el: '#vcomments',
-        app_id: '',
-        app_key: '',
+        app_id: 'lcIHzNT1lGGvLThAzydPICoN-gzGzoHsz#',
+        app_key: '4vAoonTplKnQKP8HXjhU8JKF#',
         path: window.location.pathname,
         notify: 'false',
         verify: 'false',
@@ -306,19 +321,15 @@
     </li>
     
     <li class="nav-item">
-      <a class="nav-item-link" href="/categories">分类</a>
-    </li>
-    
-    <li class="nav-item">
       <a class="nav-item-link" href="/tags">标签</a>
     </li>
     
     <li class="nav-item">
-      <a class="nav-item-link" href="/tags/%E6%97%85%E8%A1%8C/">旅行</a>
+      <a class="nav-item-link" href="/categories">分类</a>
     </li>
     
     <li class="nav-item">
-      <a class="nav-item-link" href="/null">摄影</a>
+      <a class="nav-item-link" href="https://space.bilibili.com/45524996" target="_blank" rel="noopener">B 站</a>
     </li>
     
     <li class="nav-item">
@@ -380,6 +391,21 @@
 
 <script src="/js/lazyload.min.js"></script>
 
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+      strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+      startDelay: 0,
+      typeSpeed: 100,
+      loop: true,
+      backSpeed: 100,
+      showCursor: true
+    });
+  } catch (err) {
+  }
+
+</script>
 
 
 
@@ -536,6 +562,6 @@
 
     
   </div>
-</body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 
 </html>
