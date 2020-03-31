@@ -6,7 +6,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    VSCode+gdbserver图形化调试 |  静待风来--恰逢花开
+    SourceInsight添加对汇编语言文件.s和.S的支持 |  静待风来--恰逢花开
   </title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   
@@ -30,7 +30,7 @@
   <div id="app">
     <main class="content">
       <section class="outer">
-  <article id="post-VSCode-gdbserver图形化调试" class="article article-type-post" itemscope
+  <article id="post-SourceInsight添加对汇编语言文件-s和-S的支持" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
   <div class="article-inner">
@@ -38,7 +38,7 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  VSCode+gdbserver图形化调试
+  SourceInsight添加对汇编语言文件.s和.S的支持
 </h1>
   
 
@@ -47,12 +47,12 @@
 
     
     <div class="article-meta">
-      <a href="/2020/03/25/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/" class="article-date">
-  <time datetime="2020-03-25T14:16:06.000Z" itemprop="datePublished">2020-03-25</time>
+      <a href="/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/" class="article-date">
+  <time datetime="2020-03-31T15:33:36.000Z" itemprop="datePublished">2020-03-31</time>
 </a>
       
   <div class="article-category">
-    <a class="article-category-link" href="/categories/VScode/">VScode</a>
+    <a class="article-category-link" href="/categories/%E8%BD%AF%E4%BB%B6%E6%8A%80%E5%B7%A7/">软件技巧</a>
   </div>
 
       
@@ -62,7 +62,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">837字</span>
+            <span class="post-count">182字</span>
         </span>
     </span>
 
@@ -71,7 +71,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3分钟</span>
+            <span class="post-count">1分钟</span>
         </span>
     </span>
 </div>
@@ -82,8 +82,6 @@
 
     
     
-    <div class="tocbot"></div>
-
 
 
 
@@ -98,37 +96,12 @@
       
 
       
-      <p>[TOC]</p>
-<h1 id="VSCode-gdbserver-图形化调试"><a href="#VSCode-gdbserver-图形化调试" class="headerlink" title="VSCode+gdbserver  图形化调试"></a>VSCode+gdbserver  图形化调试</h1><h1 id="一-编译GDB源码"><a href="#一-编译GDB源码" class="headerlink" title="一 . 编译GDB源码"></a>一 . 编译GDB源码</h1><h2 id="1-首先到-gdb-官网上获取源码，地址为-http-www-gnu-org-software-gdb-download"><a href="#1-首先到-gdb-官网上获取源码，地址为-http-www-gnu-org-software-gdb-download" class="headerlink" title="1.首先到 gdb 官网上获取源码，地址为 http://www.gnu.org/software/gdb/download/"></a>1.首先到 gdb 官网上获取源码，地址为 <a href="http://www.gnu.org/software/gdb/download/" target="_blank" rel="noopener">http://www.gnu.org/software/gdb/download/</a></h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -vxzf gdb-9.1.tar.gz //解压 gdb 源码</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<h2 id="2-编译-gdb"><a href="#2-编译-gdb" class="headerlink" title="2.  编译 gdb"></a>2.  编译 gdb</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> gdb-9.1/  //进入 gdb 源码目录</span><br><span class="line">mkdir build  //在 gdb 源码下新建 build 目录，gdb 编译比较奇葩！不能直接在 gdb 源</span><br><span class="line">//码目录下进行配置和编译，必须新建一个文件夹，然后在此文件夹下配</span><br><span class="line">//置和编译，切记！</span><br><span class="line"><span class="built_in">cd</span> build //进入到刚刚创建的 build 目录下</span><br><span class="line">../configure --target=arm-linux-gnueabihf --</span><br><span class="line">prefix=/home/Nick/linux/IMX6ULL/tool/gdb</span><br><span class="line">//配置 gdb。配置完成以后会在 build 目录下生成 Makefile 文件。</span><br><span class="line">make //编译</span><br><span class="line">make install  //安装</span><br></pre></td></tr></table></figure>
-
-<p>编译完成以后PC端运行的gdb工具就会安装到gdb/bin目录下.</p>
-<h2 id="3-移植-gdbserver"><a href="#3-移植-gdbserver" class="headerlink" title="3.移植 gdbserver"></a>3.移植 gdbserver</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd gdb-9.1&#x2F;gdb&#x2F;gdbserver  &#x2F;&#x2F;进入到 gdbserver 目录</span><br><span class="line">make CC&#x3D;arm-linux-gnueabihf-gcc  &#x2F;&#x2F;交叉编译 gdbserver</span><br></pre></td></tr></table></figure>
-
-<p>编译完成以后就会在目录下生成一个名为“gdbserver”的文件,拷贝到开发板中的/usr/bin 目录下。</p>
-<p>完成以后在开发板中输入如下命令查看 gdbserver 版本号</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdbserver --version</span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585146415558.png" alt="1585146415558"></p>
-<h1 id="二-VSCode-gdbserver-实现图形化界面"><a href="#二-VSCode-gdbserver-实现图形化界面" class="headerlink" title="二 . VSCode+gdbserver 实现图形化界面"></a>二 . VSCode+gdbserver 实现图形化界面</h1><h2 id="1-VSCode-设置"><a href="#1-VSCode-设置" class="headerlink" title="1.VSCode  设置"></a>1.VSCode  设置</h2><h3 id="VScode-安装远程调试插件“Remote-Development”"><a href="#VScode-安装远程调试插件“Remote-Development”" class="headerlink" title="VScode 安装远程调试插件“Remote Development”"></a>VScode 安装远程调试插件“Remote Development”</h3><p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585146627435.png" alt="1585146627435"></p>
-<h3 id="点击“调试”-gt-“添加配置”-，然后选择“C-GDB-LLDB-”选项"><a href="#点击“调试”-gt-“添加配置”-，然后选择“C-GDB-LLDB-”选项" class="headerlink" title="点击“调试”-&gt;“添加配置” ，然后选择“C++(GDB/LLDB)”选项"></a>点击“调试”-&gt;“添加配置” ，然后选择“C++(GDB/LLDB)”选项</h3><p>编辑“launch.json”</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"version"</span>: <span class="string">"0.2.0"</span>,</span><br><span class="line">    <span class="string">"configurations"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"gdbtest"</span>,  <span class="comment">//调试的项目名</span></span><br><span class="line">            <span class="string">"type"</span>: <span class="string">"cppdbg"</span>,</span><br><span class="line">            <span class="string">"request"</span>: <span class="string">"launch"</span>,</span><br><span class="line">            <span class="string">"program"</span>: <span class="string">"$&#123;workspaceFolder&#125;/test"</span>, <span class="comment">//需要调试的应用程序可执行文件路径</span></span><br><span class="line">            <span class="string">"args"</span>: [],</span><br><span class="line">            <span class="string">"stopAtEntry"</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"cwd"</span>: <span class="string">"$&#123;workspaceFolder&#125;"</span>,		<span class="comment">//需要调试的应用程序源码路径。</span></span><br><span class="line">            <span class="string">"environment"</span>: [],</span><br><span class="line">            <span class="string">"externalConsole"</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="string">"MIMode"</span>: <span class="string">"gdb"</span>,</span><br><span class="line">            <span class="string">"setupCommands"</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="string">"description"</span>: <span class="string">"为 gdb 启用整齐打印"</span>,</span><br><span class="line">                    <span class="string">"text"</span>: <span class="string">"-enable-pretty-printing"</span>,</span><br><span class="line">                    <span class="string">"ignoreFailures"</span>: <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            ],</span><br><span class="line">            <span class="string">"miDebuggerPath"</span>: <span class="string">"/home/nick/linux/gcc_tool/gcc-linaro-4.9.4-2017.01-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gdb"</span>, <span class="comment">// 此项需要手动添加，用于指定所使用的交叉编译器 gdb 路径。</span></span><br><span class="line">            <span class="string">"miDebuggerServerAddress"</span>: <span class="string">"192.168.31.50:2001"</span>		<span class="comment">//此项需要手动添加，远程 gdbserver 服务器地址。</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="三-VSCode-调试方法"><a href="#三-VSCode-调试方法" class="headerlink" title="三 VSCode 调试方法"></a>三 VSCode 调试方法</h2><h3 id="1-启动开发板上的-gdbserver，输入如下命令："><a href="#1-启动开发板上的-gdbserver，输入如下命令：" class="headerlink" title="1.启动开发板上的 gdbserver，输入如下命令："></a>1.启动开发板上的 gdbserver，输入如下命令：</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdbserver 192.168.1.253:2001 gdbtest</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-接下来在点击-VSCode-上的“调试”-gt-“启动调试”按钮"><a href="#2-接下来在点击-VSCode-上的“调试”-gt-“启动调试”按钮" class="headerlink" title="2.接下来在点击 VSCode 上的“调试”-&gt;“启动调试”按钮"></a>2.接下来在点击 VSCode 上的“调试”-&gt;“启动调试”按钮</h3><p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585146921972.png" alt="1585146921972"></p>
-<p>由于是通过网络进行调试的，因此启动调试以后会有一个建立连接的过程，可能需要几秒<br>钟，建立成功以后如图</p>
-<p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585146947145.png" alt="1585146947145"></p>
-<h3 id="3-调试按钮"><a href="#3-调试按钮" class="headerlink" title="3.调试按钮"></a>3.调试按钮</h3><p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585146996290.png" alt="1585146996290"></p>
-<p>可以看出，一共有 6 个控制按钮，这 6 个按钮从左往右功能及快捷键依次如下：<br>①、继续按钮，快捷键为 F5，用于控制程序的运行和暂停，程序运行到断点暂停以后可以<br>按下此按钮继续运行。<br>②、单步跳过按钮，快捷键为 F10。<br>③、单步调试按钮，快捷键为 F11。<br>④、单步跳出按钮，快捷键为 Shift+F11。<br>⑤、重启按钮，快捷键为 Ctrl+Shift+F5。<br>⑥、停止按钮，快捷键为 Shift+F5。</p>
-<h3 id="4-断点添加"><a href="#4-断点添加" class="headerlink" title="4.断点添加"></a>4.断点添加</h3><p>添加断点的方式也很简单，在需要添加断点的行前面，直接点击即可添加或取消断点，断点添加成功以后会在所在行前面显示一个小红点。</p>
-<h3 id="5-监视变量"><a href="#5-监视变量" class="headerlink" title="5.监视变量"></a>5.监视变量</h3><p>有时候我们需要监视一个变量的变化，这个也很简单，鼠标双击选中需要监视的变量名<br>上，然后点击鼠标右键，选择“调试：添加到监视器”</p>
-<p><img src="/images/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/1585147176910.png" alt="1585147176910"></p>
+      <p> 在使用SourceInsight的过程中，发现使用SourceInsight建立的工程在ADD TREE时，默认设置并没有把该TREE里面所有汇编文件都包含进来，比如.s和.S汇编文件，这样导致搜索时，搜索不到.s和.S汇编文件中的内容，导致查看代码何不方便。</p>
+<p>解决方法是在Options-&gt;FileType Options里面，选择x86 Asm Source File，然后在C Source File的File filter里<em>.asm;</em>.inc;的后面加上<em>.s;</em>.S 接着CLOSE就可以了。这样就可以ADD TREE时把这些汇编文件加到工程中了。</p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669338525.png" alt="1585669338525"></p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669447227.png" alt="1585669447227"></p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669547410.png" alt></p>
+<p><strong>注意，如果是已经创建的项目，需要重新创建一下才能将汇编文件添加到工程中。</strong></p>
 
       
       <!-- reward -->
@@ -198,14 +171,14 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/03/25/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vscode%E8%B0%83%E8%AF%95/" rel="tag">vscode调试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0/" rel="tag">学习</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/source-insight/" rel="tag">source insight</a></li></ul>
 
 
     </footer>
@@ -216,19 +189,10 @@
   
   <nav class="article-nav">
     
-      <a href="/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            SourceInsight添加对汇编语言文件.s和.S的支持
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/03/20/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/" class="article-nav-link">
+      <a href="/2020/03/25/VSCode-gdbserver%E5%9B%BE%E5%BD%A2%E5%8C%96%E8%B0%83%E8%AF%95/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">linux下的IIC设备驱动分析</div>
+        <div class="article-nav-title">VSCode+gdbserver图形化调试</div>
       </a>
     
   </nav>

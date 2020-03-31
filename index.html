@@ -64,6 +64,84 @@
     
     
     
+    <article id="post-SourceInsight添加对汇编语言文件-s和-S的支持" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/"
+    >SourceInsight添加对汇编语言文件.s和.S的支持</a
+  >
+</h2>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/" class="article-date">
+  <time datetime="2020-03-31T15:33:36.000Z" itemprop="datePublished">2020-03-31</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%BD%AF%E4%BB%B6%E6%8A%80%E5%B7%A7/">软件技巧</a>
+  </div>
+
+      
+      
+      
+    </div>
+    
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <p> 在使用SourceInsight的过程中，发现使用SourceInsight建立的工程在ADD TREE时，默认设置并没有把该TREE里面所有汇编文件都包含进来，比如.s和.S汇编文件，这样导致搜索时，搜索不到.s和.S汇编文件中的内容，导致查看代码何不方便。</p>
+<p>解决方法是在Options-&gt;FileType Options里面，选择x86 Asm Source File，然后在C Source File的File filter里<em>.asm;</em>.inc;的后面加上<em>.s;</em>.S 接着CLOSE就可以了。这样就可以ADD TREE时把这些汇编文件加到工程中了。</p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669338525.png" alt="1585669338525"></p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669447227.png" alt="1585669447227"></p>
+<p><img src="../images/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/1585669547410.png" alt></p>
+<p><strong>注意，如果是已经创建的项目，需要重新创建一下才能将汇编文件添加到工程中。</strong></p>
+
+      
+      <!-- reward -->
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/source-insight/" rel="tag">source insight</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+
+  
+  
+  
+
+  
+
+</article>
+    
     <article id="post-VSCode-gdbserver图形化调试" class="article article-type-post" itemscope
   itemprop="blogPost" data-scroll-reveal>
 
