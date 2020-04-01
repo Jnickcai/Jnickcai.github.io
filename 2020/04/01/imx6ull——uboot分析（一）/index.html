@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    imx6ull——uboot分析（一） |  静待风来--恰逢花开
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-imx6ull——uboot分析（一）" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  imx6ull——uboot分析（一）
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/04/01/imx6ull%E2%80%94%E2%80%94uboot%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" class="article-date">
+  <time datetime="2020-04-01T12:31:10.000Z" itemprop="datePublished">2020-04-01</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/uboot%E5%AD%A6%E4%B9%A0/">uboot学习</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">789字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">4分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="一-编译uboot"><a href="#一-编译uboot" class="headerlink" title="一.编译uboot"></a>一.编译uboot</h1><p>编译配置文件在uboot-imx-rel_imx_4.1.15_2.1.0_ga\configs文件夹</p>
+<a id="more"></a>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean</span><br><span class="line">ake ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- mx6ull_14x14_ddr3_arm2_emmc_defconfig  </span><br><span class="line">make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- V=1 -j12</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/imx6ull%E2%80%94%E2%80%94uboot%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/1585745101773.png" alt="1585745101773"></p>
+<p>分析u-boot.ld文件</p>
+<p>节选如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">OUTPUT_FORMAT(&quot;elf32-littlearm&quot;, &quot;elf32-littlearm&quot;, &quot;elf32-littlearm&quot;)</span><br><span class="line">OUTPUT_ARCH(arm)</span><br><span class="line">ENTRY(_start)</span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line"> . &#x3D; 0x00000000;</span><br><span class="line"> . &#x3D; ALIGN(4);</span><br><span class="line"> .text :</span><br><span class="line"> &#123;</span><br><span class="line">  *(.__image_copy_start)</span><br><span class="line">  *(.vectors)</span><br><span class="line">  arch&#x2F;arm&#x2F;cpu&#x2F;armv7&#x2F;start.o (.text*)</span><br><span class="line">  *(.text*)</span><br><span class="line"> &#125;</span><br><span class="line"> . &#x3D; ALIGN(4);</span><br><span class="line"> .rodata : &#123; *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) &#125;</span><br><span class="line"> . &#x3D; ALIGN(4);</span><br><span class="line"> .data : &#123;</span><br><span class="line">  *(.data*)</span><br><span class="line"> &#125;</span><br><span class="line"> . &#x3D; ALIG</span><br></pre></td></tr></table></figure>
+
+
+
+<p>打卡u-boot.map文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gedit u-boot.map</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">*(.__image_copy_start)</span><br><span class="line"> .__image_copy_start</span><br><span class="line">                0x0000000087800000        0x0 arch&#x2F;arm&#x2F;lib&#x2F;built-in.o</span><br><span class="line">                0x0000000087800000                __image_copy_start</span><br><span class="line"> *(.vectors)</span><br><span class="line"> .vectors       0x0000000087800000      0x300 arch&#x2F;arm&#x2F;lib&#x2F;built-in.o</span><br><span class="line">                0x0000000087800000                _start</span><br><span class="line">                0x0000000087800020                _undefined_instruction</span><br><span class="line">                0x0000000087800024                _software_interrupt</span><br><span class="line">                0x0000000087800028                _prefetch_abort</span><br><span class="line">                0x000000008780002c                _data_abort</span><br><span class="line">                0x0000000087800030                _not_used</span><br><span class="line">                0x0000000087800034                _irq</span><br><span class="line">                0x0000000087800038                _fiq</span><br><span class="line">                0x0000000087800040                IRQ_STACK_START_IN</span><br><span class="line"> arch&#x2F;arm&#x2F;cpu&#x2F;armv7&#x2F;start.o(.text*)</span><br><span class="line"> .text          0x0000000087800300       0xb0 arch&#x2F;arm&#x2F;cpu&#x2F;armv7&#x2F;start.o</span><br><span class="line">                0x0000000087800300                reset</span><br><span class="line">                0x0000000087800304                save_boot_params_ret</span><br><span class="line">                0x0000000087800340                c_runtime_cpu_setup</span><br><span class="line">                0x0000000087800350                save_boot_params</span><br><span class="line">                0x0000000087800354                cpu_init_cp15</span><br><span class="line">                0x00000000878003a8                cpu_init_crit</span><br></pre></td></tr></table></figure>
+
+<p>反汇编u-boot文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gnueabihf-objdump -D -m arm u-boot &gt; u-boot.dis</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">u-boot:     file format elf32-littlearm</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">87800000 &lt;__image_copy_start&gt;:</span><br><span class="line">87800000:	ea0000be 	b	87800300 &lt;reset&gt;</span><br><span class="line">87800004:	e59ff014 	ldr	pc, [pc, #20]	; 87800020 &lt;_undefined_instruction&gt;</span><br><span class="line">87800008:	e59ff014 	ldr	pc, [pc, #20]	; 87800024 &lt;_software_interrupt&gt;</span><br><span class="line">8780000c:	e59ff014 	ldr	pc, [pc, #20]	; 87800028 &lt;_prefetch_abort&gt;</span><br><span class="line">87800010:	e59ff014 	ldr	pc, [pc, #20]	; 8780002c &lt;_data_abort&gt;</span><br><span class="line">87800014:	e59ff014 	ldr	pc, [pc, #20]	; 87800030 &lt;_not_used&gt;</span><br><span class="line">87800018:	e59ff014 	ldr	pc, [pc, #20]	; 87800034 &lt;_irq&gt;</span><br><span class="line">8780001c:	e59ff014 	ldr	pc, [pc, #20]	; 87800038 &lt;_fiq&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>综上所述：u-boot开头定义了中断向量表reset以及&lt;_undefined_instruction&gt;等中断向量。然后</p>
+<p>跳转到uboot-imx-rel_imx_4.1.15_2.1.0_ga\arch\arm\cpu\armv7\start.S文件执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">reset:</span><br><span class="line">	&#x2F;* Allow the board to save important registers *&#x2F;</span><br><span class="line">	b	save_boot_params</span><br><span class="line">save_boot_params_ret:</span><br><span class="line">	&#x2F;*</span><br><span class="line">	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,</span><br><span class="line">	 * except if in HYP mode already</span><br><span class="line">	 *&#x2F;</span><br><span class="line">	mrs	r0, cpsr</span><br><span class="line">	and	r1, r0, #0x1f		@ mask mode bits</span><br><span class="line">	teq	r1, #0x1a		@ test for HYP mode</span><br><span class="line">	bicne	r0, r0, #0x1f		@ clear all mode bits</span><br><span class="line">	orrne	r0, r0, #0x13		@ set SVC mode</span><br><span class="line">	orr	r0, r0, #0xc0		@ disable FIQ and IRQ</span><br><span class="line">	msr	cpsr,r0</span><br></pre></td></tr></table></figure>
+
+<h1 id="二。U-Boot-启动流程"><a href="#二。U-Boot-启动流程" class="headerlink" title="二。U-Boot 启动流程"></a>二。U-Boot 启动流程</h1><h2 id="1-关闭中断，初始化cpu为SVC32模式"><a href="#1-关闭中断，初始化cpu为SVC32模式" class="headerlink" title="1.关闭中断，初始化cpu为SVC32模式"></a>1.关闭中断，初始化cpu为SVC32模式</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mrs	r0, cpsr</span><br><span class="line">and	r1, r0, #0x1f		@ mask mode bits</span><br><span class="line">teq	r1, #0x1a		@ test for HYP mode</span><br><span class="line">bicne	r0, r0, #0x1f		@ clear all mode bits</span><br><span class="line">orrne	r0, r0, #0x13		@ set SVC mode</span><br><span class="line">orr	r0, r0, #0xc0		@ disable FIQ and IRQ</span><br><span class="line">msr	cpsr,r0</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-设置向量表重定位"><a href="#2-设置向量表重定位" class="headerlink" title="2.设置向量表重定位"></a>2.设置向量表重定位</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#if !(defined(CONFIG_OMAP44XX) &amp;&amp; defined(CONFIG_SPL_BUILD))</span><br><span class="line">	&#x2F;* Set V&#x3D;0 in CP15 SCTLR register - for VBAR to point to vector *&#x2F;</span><br><span class="line">	mrc	p15, 0, r0, c1, c0, 0	@ Read CP15 SCTLR Register</span><br><span class="line">	bic	r0, #CR_V		@ V &#x3D; 0</span><br><span class="line">	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTLR Register</span><br><span class="line"></span><br><span class="line">	&#x2F;* Set vector address in CP15 VBAR register *&#x2F;</span><br><span class="line">	ldr	r0, &#x3D;_start</span><br><span class="line">	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-跳转到-cpu-init-cp15函数"><a href="#3-跳转到-cpu-init-cp15函数" class="headerlink" title="3.跳转到  cpu_init_cp15函数"></a>3.跳转到  cpu_init_cp15函数</h2><p>关闭 MMU Icha等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(cpu_init_cp15)</span><br><span class="line">	&#x2F;*</span><br><span class="line">	 * Invalidate L1 I&#x2F;D</span><br><span class="line">	 *&#x2F;</span><br><span class="line">	mov	r0, #0			@ set up for MCR</span><br><span class="line">	mcr	p15, 0, r0, c8, c7, 0	@ invalidate TLBs</span><br><span class="line">	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache</span><br><span class="line">	mcr	p15, 0, r0, c7, c5, 6	@ invalidate BP array</span><br><span class="line">	mcr     p15, 0, r0, c7, c10, 4	@ DSB</span><br><span class="line">	mcr     p15, 0, r0, c7, c5, 4	@ ISB</span><br><span class="line"></span><br><span class="line">	&#x2F;*</span><br><span class="line">	 * disable MMU stuff and caches</span><br><span class="line">	 *&#x2F;</span><br><span class="line">	mrc	p15, 0, r0, c1, c0, 0</span><br><span class="line">	.......</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	mov	pc, r5			@ back to my caller</span><br><span class="line">ENDPROC(cpu_init_cp15)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-跳转到cpu-init-crit函数"><a href="#4-跳转到cpu-init-crit函数" class="headerlink" title="4.跳转到cpu_init_crit函数"></a>4.跳转到cpu_init_crit函数</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(cpu_init_crit)</span><br><span class="line"></span><br><span class="line">	b	lowlevel_init		@ go setup pll,mux,memory</span><br><span class="line">ENDPROC(cpu_init_crit)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-lowlevel-init函数分析"><a href="#5-lowlevel-init函数分析" class="headerlink" title="5.lowlevel_init函数分析"></a>5.lowlevel_init函数分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(lowlevel_init)</span><br><span class="line"></span><br><span class="line">	ldr	sp, &#x3D;CONFIG_SYS_INIT_SP_ADDR  # </span><br><span class="line">	bic	sp, sp, #7 &#x2F;* 8-byte alignment for ABI compliance *&#x2F;</span><br><span class="line"></span><br><span class="line">	sub	sp, sp, #GD_SIZE</span><br><span class="line">	bic	sp, sp, #7</span><br><span class="line">	mov	r9, sp</span><br><span class="line"></span><br><span class="line"> 	push	&#123;ip, lr&#125;</span><br><span class="line"></span><br><span class="line">	bl	s_init</span><br><span class="line">	pop	&#123;ip, pc&#125;</span><br><span class="line">	</span><br><span class="line">ENDPROC(lowlevel_init)</span><br></pre></td></tr></table></figure>
+
+<p>CONFIG_SYS_INIT_SP_ADDR = 0x00900000 +(0x00020000-256) =0X91FF00</p>
+<p>0090_0000     0091_FFFF      128 KB      OCRAM     128 KB    00900000是片内ROM地址</p>
+<p>bic    sp, sp, #7  8字节对齐</p>
+<p>留出#define GENERATED_BD_INFO_SIZE 80 /* (sizeof(struct bd_info) + 15) &amp; ~15</p>
+<p>空间</p>
+<p>8字节对齐</p>
+<p>调用s_init函数</p>
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/04/01/imx6ull%E2%80%94%E2%80%94uboot%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uboot/" rel="tag">uboot</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+    
+      <a href="/2020/03/31/SourceInsight%E6%B7%BB%E5%8A%A0%E5%AF%B9%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%96%87%E4%BB%B6-s%E5%92%8C-S%E7%9A%84%E6%94%AF%E6%8C%81/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">SourceInsight添加对汇编语言文件.s和.S的支持</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+<!-- valine评论 -->
+<div id="vcomments-box">
+    <div id="vcomments">
+    </div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        app_id: 'lcIHzNT1lGGvLThAzydPICoN-gzGzoHsz',
+        app_key: '4vAoonTplKnQKP8HXjhU8JKF',
+        path: window.location.pathname,
+        notify: 'false',
+        verify: 'false',
+        avatar: 'mp',
+        placeholder: '给我的文章加点评论吧~',
+        recordIP: true
+    });
+    const infoEle = document.querySelector('#vcomments .info');
+    if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+        infoEle.childNodes.forEach(function (item) {
+            item.parentNode.removeChild(item);
+        });
+    }
+</script>
+<style>
+    #vcomments-box {
+        padding: 5px 30px;
+    }
+
+    @media screen and (max-width: 800px) {
+        #vcomments-box {
+            padding: 5px 0px;
+        }
+    }
+
+    #vcomments-box #vcomments {
+        background-color: #fff;
+    }
+
+    .v .vlist .vcard .vh {
+        padding-right: 20px;
+    }
+
+    .v .vlist .vcard {
+        padding-left: 10px;
+    }
+</style>
+
+  
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2020
+        Nick_cai
+      </li>
+      <li>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="静待风来--恰逢花开"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="https://space.bilibili.com/45524996" target="_blank" rel="noopener">B 站</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2019/12/01/about/">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+      strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+      startDelay: 0,
+      typeSpeed: 100,
+      loop: true,
+      backSpeed: 100,
+      showCursor: true
+    });
+  } catch (err) {
+  }
+
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/js/ayer.js"></script>
+
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/assets/tororo.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":true},"log":false});</script></body>
+
+</html>
