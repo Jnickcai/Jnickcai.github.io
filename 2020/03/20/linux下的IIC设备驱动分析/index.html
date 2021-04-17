@@ -98,12 +98,12 @@
       
 
       
-      <link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><p>[TOC]</p>
-<h1 id="一-IIC概述"><a href="#一-IIC概述" class="headerlink" title="一.     IIC概述"></a>一.     IIC概述</h1><p>1.IIC总线是PHLIPS公司推出的一种串行总线，是具备多主机系统所需的包括总线裁决和高低速器件同步功能的高性能串行总线。<br>2.IIC总线具有两根双向信号线，一根数据SDA，一根时钟线SCL。<br><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180514203538172.jpg" alt></p>
+      <p>[TOC]</p>
+<h1 id="一-IIC概述"><a href="#一-IIC概述" class="headerlink" title="一.     IIC概述"></a>一.     IIC概述</h1><p>1.IIC总线是PHLIPS公司推出的一种串行总线，是具备多主机系统所需的包括总线裁决和高低速器件同步功能的高性能串行总线。<br>2.IIC总线具有两根双向信号线，一根数据SDA，一根时钟线SCL。<br><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180514203538172.jpg" alt=""></p>
 <a id="more"></a>
 
 <p>3.I2C总线通过上拉阻接正电源，上拉电阻一般在4.7k~10k之间。当总线空闲时，两根线均为高电平。连到总线上的任一器件输出的低电平，都将使总线的信号变低，即各器件的SDA及SCL都是线“与”关系。</p>
-<p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180515110246982-1584620951866.png" alt></p>
+<p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20180515110246982-1584620951866.png" alt=""></p>
 <p>4.每个接到I2C总线上的器件都有唯一的地址（每个IIC设备都有一只设备ID，主机通过设备ID找到设备，然后开始通信）。主机与其它器件间的数据传输可以是由主机发送数据到其它器件，这时主机即为发送器，总线上收数据的器件则为接收器。</p>
 <h1 id="二-Linux-下IIC-驱动架构"><a href="#二-Linux-下IIC-驱动架构" class="headerlink" title="二.    Linux 下IIC 驱动架构"></a>二.    Linux 下IIC 驱动架构</h1><p>Linux 定义了系统的IIC驱动体系架构，IIC驱动由3部分组成，IIC核心，IIC总线驱动，IIC设备驱动。</p>
 <p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20160317213313496.png" alt="img"></p>
@@ -135,7 +135,7 @@
 
 
 
-<h2 id><a href="#" class="headerlink" title></a></h2><p>​    首先看一张代码层次图，有助于我们的理解</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><p>​    首先看一张代码层次图，有助于我们的理解</p>
 <p><img src="/images/linux%E4%B8%8B%E7%9A%84IIC%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90/20160317221220170.png" alt="img"></p>
 <h2 id="编写驱动需要完成的工作"><a href="#编写驱动需要完成的工作" class="headerlink" title="编写驱动需要完成的工作"></a>编写驱动需要完成的工作</h2><p>编写具体的I2C驱动时，工程师需要处理的主要工作如下：</p>
 <p>​    1)、提供I2C适配器的硬件驱动，探测，初始化I2C适配器(如申请I2C的I/O地址和中断号)，驱动CPU控制的I2C适配器从硬件上产生。</p>
